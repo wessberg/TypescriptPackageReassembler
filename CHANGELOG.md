@@ -1,3 +1,11 @@
+<a name="0.0.3"></a>
+## 0.0.3 (2017-09-02)
+
+* 0.0.3 ([8f8fb58](https://github.com/wessberg/TypescriptPackageReassembler/commit/8f8fb58))
+* Bumped version ([8fb958f](https://github.com/wessberg/TypescriptPackageReassembler/commit/8fb958f))
+
+
+
 <a name="0.0.2"></a>
 ## 0.0.2 (2017-09-02)
 
