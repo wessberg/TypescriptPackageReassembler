@@ -1,4 +1,4 @@
-import {ArrayBindingElement, ArrayBindingPattern, UnionTypeNode, TupleTypeNode, isTupleTypeNode, createTupleTypeNode, isUnionTypeNode, createUnionTypeNode, ArrayTypeNode, isArrayTypeNode, createArrayTypeNode, IntersectionTypeNode, isIntersectionTypeNode, createIntersectionTypeNode, BindingElement, createTrue, createFalse, BooleanLiteral, createNumericLiteral, BindingName, ComputedPropertyName, createArrayBindingPattern, createBindingElement, createComputedPropertyName, createDecorator, createExpressionWithTypeArguments, createFunctionTypeNode, createHeritageClause, createIdentifier, createIndexedAccessTypeNode, createKeywordTypeNode, createLiteral, createLiteralTypeNode, createMappedTypeNode, createNode, createNodeArray, createObjectBindingPattern, createOmittedExpression, createParameter, createPropertySignature, createQualifiedName, createToken, createTypeLiteralNode, createTypeOperatorNode, createTypeParameterDeclaration, createTypeReferenceNode, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, IndexedAccessTypeNode, isArrayBindingPattern, isBindingElement, isFunctionTypeNode, isIdentifier, isIndexedAccessTypeNode, isLiteralTypeNode, isMappedTypeNode, isNumericLiteral, isPropertySignature, isQualifiedName, isStringLiteral, isTypeLiteralNode, isTypeOperatorNode, isTypeReferenceNode, KeywordTypeNode, LiteralTypeNode, MappedTypeNode, Modifier, NodeArray, NodeFlags, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, PropertyName, PropertySignature, QualifiedName, StringLiteral, SyntaxKind, Token, TypeElement, TypeLiteralNode, TypeNode, TypeOperatorNode, TypeParameterDeclaration, TypeReferenceNode} from "typescript";
+import {ArrayBindingElement, ArrayBindingPattern, UnionTypeNode, TupleTypeNode, ParenthesizedTypeNode, isParenthesizedTypeNode, createParenthesizedType, isTupleTypeNode, createTupleTypeNode, isUnionTypeNode, createUnionTypeNode, ArrayTypeNode, isArrayTypeNode, createArrayTypeNode, IntersectionTypeNode, isIntersectionTypeNode, createIntersectionTypeNode, BindingElement, createTrue, createFalse, BooleanLiteral, createNumericLiteral, BindingName, ComputedPropertyName, createArrayBindingPattern, createBindingElement, createComputedPropertyName, createDecorator, createExpressionWithTypeArguments, createFunctionTypeNode, createHeritageClause, createIdentifier, createIndexedAccessTypeNode, createKeywordTypeNode, createLiteral, createLiteralTypeNode, createMappedTypeNode, createNode, createNodeArray, createObjectBindingPattern, createOmittedExpression, createParameter, createPropertySignature, createQualifiedName, createToken, createTypeLiteralNode, createTypeOperatorNode, createTypeParameterDeclaration, createTypeReferenceNode, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, IndexedAccessTypeNode, isArrayBindingPattern, isBindingElement, isFunctionTypeNode, isIdentifier, isIndexedAccessTypeNode, isLiteralTypeNode, isMappedTypeNode, isNumericLiteral, isPropertySignature, isQualifiedName, isStringLiteral, isTypeLiteralNode, isTypeOperatorNode, isTypeReferenceNode, KeywordTypeNode, LiteralTypeNode, MappedTypeNode, Modifier, NodeArray, NodeFlags, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, PropertyName, PropertySignature, QualifiedName, StringLiteral, SyntaxKind, Token, TypeElement, TypeLiteralNode, TypeNode, TypeOperatorNode, TypeParameterDeclaration, TypeReferenceNode} from "typescript";
 import {ICopier} from "./i-copier";
 import {isKeywordTypeNode} from "../predicate/keyword-type-node/is-keyword-type-node";
 import {isBooleanLiteral, isLastTypeNode, LastTypeNode} from "@wessberg/typescript-ast-util";
@@ -65,6 +65,10 @@ export class Copier implements ICopier {
 			return this.copyTupleTypeNode(type);
 		}
 
+		else if (isParenthesizedTypeNode(type)) {
+			return this.copyParenthesizedType(type);
+		}
+
 		console.log(`${this.constructor.name} could not format a type of kind`, SyntaxKind[type.kind], "around here:", type.getSourceFile().text.slice(type.pos, type.end));
 		return type;
 	}
@@ -76,6 +80,15 @@ export class Copier implements ICopier {
 	 */
 	public copyLiteralTypeNode (type: LiteralTypeNode): LiteralTypeNode {
 		return createLiteralTypeNode(this.copyExpression(type.literal));
+	}
+
+	/**
+	 * Copies a ParenthesizedTypeNode
+	 * @param {ParenthesizedTypeNode} type
+	 * @returns {ParenthesizedTypeNode}
+	 */
+	public copyParenthesizedType (type: ParenthesizedTypeNode): ParenthesizedTypeNode {
+		return createParenthesizedType(this.copyType(type.type));
 	}
 
 	/**

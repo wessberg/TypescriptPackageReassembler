@@ -1,9 +1,10 @@
-import {ArrayBindingElement, LiteralTypeNode, TupleTypeNode, UnionTypeNode, IntersectionTypeNode, ArrayTypeNode, ArrayBindingPattern, IndexedAccessTypeNode, TypeOperatorNode, BindingElement, BindingName, ComputedPropertyName, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, KeywordTypeNode, MappedTypeNode, Modifier, NodeArray, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, PropertyName, PropertySignature, QualifiedName, StringLiteral, SyntaxKind, Token, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypeReferenceNode} from "typescript";
+import {ArrayBindingElement, LiteralTypeNode, ParenthesizedTypeNode, TupleTypeNode, UnionTypeNode, IntersectionTypeNode, ArrayTypeNode, ArrayBindingPattern, IndexedAccessTypeNode, TypeOperatorNode, BindingElement, BindingName, ComputedPropertyName, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, KeywordTypeNode, MappedTypeNode, Modifier, NodeArray, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, PropertyName, PropertySignature, QualifiedName, StringLiteral, SyntaxKind, Token, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypeReferenceNode} from "typescript";
 import {LastTypeNode} from "@wessberg/typescript-ast-util";
 
 export interface ICopier {
 	copyType (type: TypeNode): TypeNode;
 	copyNumericLiteral (type: NumericLiteral): NumericLiteral;
+	copyParenthesizedType (type: ParenthesizedTypeNode): ParenthesizedTypeNode;
 	copyTupleTypeNode (type: TupleTypeNode): TupleTypeNode;
 	copyLiteralTypeNode (type: LiteralTypeNode): LiteralTypeNode;
 	copyTypeOperatorNode (type: TypeOperatorNode): TypeOperatorNode;
