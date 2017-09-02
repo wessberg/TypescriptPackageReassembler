@@ -1,3 +1,12 @@
+<a name="0.0.2"></a>
+## 0.0.2 (2017-09-02)
+
+* 0.0.2 ([8a52ac1](https://github.com/wessberg/TypescriptPackageReassembler/commit/8a52ac1))
+* Bumped version ([903ab10](https://github.com/wessberg/TypescriptPackageReassembler/commit/903ab10))
+* Used TS transformers to ensure proper indexing and sourcemap generation ([537165d](https://github.com/wessberg/TypescriptPackageReassembler/commit/537165d))
+
+
+
 <a name="0.0.1"></a>
 ## 0.0.1 (2017-08-29)
 
