@@ -1,4 +1,4 @@
-import {Expression, Node, Statement, createPrinter, SourceFile, NodeArray} from "typescript";
+import {createPrinter, Expression, isSourceFile, Node, NodeArray, SourceFile, Statement, transform, TransformationContext, TransformerFactory, visitEachChild, VisitResult} from "typescript";
 import {ITypescriptPackageReassembler} from "./i-typescript-package-reassembler";
 import {ITypescriptPackageReassemblerOptions} from "./i-typescript-package-reassembler-options";
 import {ITypescriptPackageReassembleResult} from "./i-typescript-package-reassemble-result";
@@ -6,6 +6,10 @@ import {IMatcher} from "../matcher/i-matcher";
 import {IReassembler} from "../reassembler/i-reassembler";
 import {Matcher} from "../matcher/matcher";
 import {Reassembler} from "../reassembler/reassembler";
+import {ITransformUtil} from "../util/transform-util/i-transform-util";
+import {TransformUtil} from "../util/transform-util/transform-util";
+import {ICopier} from "../copier/i-copier";
+import {Copier} from "../copier/copier";
 
 /**
  * A class that can add type information from the provided declarations statements to the provided compiled statements.
@@ -13,16 +17,27 @@ import {Reassembler} from "../reassembler/reassembler";
  */
 export class TypescriptPackageReassembler implements ITypescriptPackageReassembler {
 	/**
+	 * The TransformUtil will help with general transformation-related tasks
+	 * @type {TransformUtil}
+	 */
+	private readonly transformUtil: ITransformUtil = new TransformUtil();
+
+	/**
+	 * A Copier can generate new Typescript AST nodes
+	 * @type {Copier}
+	 */
+	private readonly copier: ICopier = new Copier();
+	/**
 	 * The matcher will figure out which expressions fits which statements
 	 * @type {Matcher}
 	 */
-	private readonly matcher: IMatcher = new Matcher();
+	private readonly matcher: IMatcher = new Matcher(this.transformUtil);
 
 	/**
 	 * The reassembler will set type information on the statements of the compiled code
 	 * @type {Reassembler}
 	 */
-	private readonly reassembler: IReassembler = new Reassembler();
+	private readonly reassembler: IReassembler = new Reassembler(this.matcher, this.copier);
 
 	/**
 	 * Adds type information from the provided declarations statements to the provided compiled statements.
@@ -31,17 +46,14 @@ export class TypescriptPackageReassembler implements ITypescriptPackageReassembl
 	 * @returns {ITypescriptPackageReassembleResult}
 	 */
 	public reassemble ({compiledStatements, declarationStatements}: ITypescriptPackageReassemblerOptions): ITypescriptPackageReassembleResult {
-		// Handle all expressions
-		this.handleAll({compiledStatements, declarationStatements});
-
-		// Get a reference to the source file
-		const sourceFile = this.getSourceFile(compiledStatements);
-		// Print the changes
-		const content = createPrinter().printFile(sourceFile);
-
-		// Update the text contents
-		sourceFile.text = content;
-
+		const compiledSourceFile = this.transformUtil.getSourceFile(compiledStatements);
+		// Transform all of the statements
+		const {transformed} = transform(compiledSourceFile, [this.transform(declarationStatements)]);
+		// Take the new sourceFile
+		const [sourceFile] = transformed;
+		// Print the contents
+		const printer = createPrinter();
+		const content = printer.printFile(sourceFile);
 		return {
 			sourceFile,
 			content
@@ -49,42 +61,44 @@ export class TypescriptPackageReassembler implements ITypescriptPackageReassembl
 	}
 
 	/**
-	 * Handles all of the provided compiled statements an declaration statements
-	 * @param {NodeArray<Statement>|SourceFile} compiledStatements
-	 * @param {NodeArray<Statement>|SourceFile} declarationStatements
+	 * Hooks up a Transformer. The declaration statements will be passed along for each node
+	 * @param {NodeArray<Node> | SourceFile} declarationStatements
+	 * @returns {TransformerFactory<SourceFile>}
 	 */
-	private handleAll ({compiledStatements, declarationStatements}: ITypescriptPackageReassemblerOptions): void {
-		const normalizedCompiledStatements = this.getStatements(compiledStatements);
-		const normalizedDeclarationStatements = this.getStatements(declarationStatements);
-		normalizedCompiledStatements.forEach(statement => this.handleMatchingExpression(statement, this.matcher.findMatchingExpression(statement, normalizedDeclarationStatements)));
+	private transform (declarationStatements: NodeArray<Node>|SourceFile): TransformerFactory<SourceFile> {
+		return (transformContext) => {
+			return (tsSourceFile: SourceFile) => {
+				return <SourceFile> this.visit(tsSourceFile, transformContext, declarationStatements);
+			};
+		};
 	}
 
 	/**
-	 * Returns the statements of a SourceFile or the statements themselves if that is what is provided as an argument
-	 * @param {NodeArray<Statement> | SourceFile} statements
-	 * @returns {NodeArray<Statement>}
+	 * Visits a node in the AST
+	 * @param {Node} node
+	 * @param {TransformationContext} transformContext
+	 * @param {NodeArray<Node> | SourceFile} declarationStatements
+	 * @returns {VisitResult<Node>}
 	 */
-	private getStatements (statements: NodeArray<Statement>|SourceFile): NodeArray<Statement> {
-		return Array.isArray(statements) ? statements : (<SourceFile>statements).statements;
-	}
-
-	/**
-	 * Returns the first matched SourceFile of the given statements or the SourceFile itself if that is what is provided as an argument
-	 * @param {NodeArray<Statement> | SourceFile} statements
-	 * @returns {SourceFile}
-	 */
-	private getSourceFile (statements: NodeArray<Statement>|SourceFile): SourceFile {
-		return this.getStatements(statements)[0].getSourceFile();
+	private visit (node: Node, transformContext: TransformationContext, declarationStatements: NodeArray<Node>|SourceFile): VisitResult<Node> {
+		if (isSourceFile(node)) {
+			return visitEachChild(node, child => {
+				return this.visit(child, transformContext, declarationStatements);
+			}, transformContext);
+		} else {
+			return this.handleMatchingNode(node, this.matcher.findMatchingNode(node, declarationStatements));
+		}
 	}
 
 	/**
 	 * Handles a matching expression. This means that the compiled expression and declaration expression are related
-	 * @param {Expression | Statement | Node} compiled
-	 * @param {Expression | Statement | Node} declaration
+	 * @param {Node} compiled
+	 * @param {Node} declaration
+	 * @returns {Node}
 	 */
-	private handleMatchingExpression (compiled: Expression|Statement|Node, declaration: Expression|Statement|Node|undefined): void {
-		if (declaration == null) return;
+	private handleMatchingNode (compiled: Expression|Statement|Node, declaration: Node|undefined): Node {
+		if (declaration == null) return compiled;
 		// Assign the changes to the compiled expression
-		Object.assign(compiled, this.reassembler.reassembleExpression(compiled, declaration));
+		return this.reassembler.reassembleNode(compiled, declaration);
 	}
 }

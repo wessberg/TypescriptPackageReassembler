@@ -1,10 +1,10 @@
-import {ClassDeclaration, ClassElement, AccessorDeclaration, ComputedPropertyName, Expression, Identifier, MethodDeclaration, Node, NodeArray, NumericLiteral, PropertyDeclaration, PropertyName, Statement, StringLiteral} from "typescript";
+import {ClassDeclaration, ClassElement, ComputedPropertyName, GetAccessorDeclaration, Identifier, MethodDeclaration, Node, NodeArray, NumericLiteral, PropertyDeclaration, PropertyName, SetAccessorDeclaration, SourceFile, StringLiteral} from "typescript";
 
 export interface IMatcher {
-	isExpressionMatching (compiled: Expression|Statement|Node, declaration: Expression|Statement|Node): boolean;
-	findMatchingExpression (compiled: Expression|Statement|Node, declarations: NodeArray<Statement|Expression|Node>): Expression|undefined;
-	findMatchingClassElement (compiled: ClassElement, declarations: NodeArray<Statement|Expression|Node>): ClassElement|undefined;
-	hasMatchingClassElement (compiled: ClassElement, declarations: NodeArray<Statement|Expression|Node>): boolean;
+	isNodeMatching (compiled: Node, declaration: Node): boolean;
+	findMatchingNode (compiled: Node, declarations: NodeArray<Node>|SourceFile): Node|undefined;
+	findMatchingClassElement (compiled: ClassElement, declarations: NodeArray<Node>): ClassElement|undefined;
+	hasMatchingClassElement (compiled: ClassElement, declarations: NodeArray<Node>): boolean;
 	isStringLiteralMatching (compiled: StringLiteral, declaration: StringLiteral): boolean;
 	isNumericLiteralMatching (compiled: NumericLiteral, declaration: NumericLiteral): boolean;
 	isIdentifierMatching (compiled: Identifier, declaration: Identifier): boolean;
@@ -14,5 +14,6 @@ export interface IMatcher {
 	isMethodDeclarationMatching (compiled: MethodDeclaration, declaration: MethodDeclaration): boolean;
 	isClassElementMatching (compiled: ClassElement, declaration: ClassElement): boolean;
 	isClassDeclarationMatching (compiled: ClassDeclaration, declaration: ClassDeclaration): boolean;
-	isAccessorMatching (compiled: AccessorDeclaration, declaration: AccessorDeclaration): boolean;
+	isGetAccessorMatching (compiled: GetAccessorDeclaration, declaration: GetAccessorDeclaration): boolean;
+	isSetAccessorMatching (compiled: SetAccessorDeclaration, declaration: SetAccessorDeclaration): boolean;
 }

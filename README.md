@@ -21,10 +21,6 @@ A library that can (re)add type information from a Typescript SourceFile to anot
 The most probable use case (and the one this was built primarily for) is if you want to parse code from a library inside node_modules and want Typescript's AST to use the
 type-information from the declaration file (*".d.ts"*) that exists within the same directory.
 
-## Disclaimer
-
-This is very much in alpha. I don't assume any issues, however.
-
 ## Usage
 ```typescript
 // Generate a Typescript AST for the compiled code somehow

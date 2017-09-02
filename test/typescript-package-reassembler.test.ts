@@ -17,5 +17,5 @@ test("foo", t => {
 
 	const result = reassembler.reassemble({compiledStatements, declarationStatements});
 	console.log(result.content);
-	t.true(true);
+	t.true(result != null);
 });

@@ -1,8 +1,7 @@
-import {ClassDeclaration, Modifier, FunctionLikeDeclaration, NodeArray, ClassElement, AccessorDeclaration, ConstructorDeclaration, ComputedPropertyName, Expression, ParameterDeclaration, Identifier, MethodDeclaration, Node, NumericLiteral, PropertyDeclaration, PropertyName, Statement, StringLiteral} from "typescript";
+import {ClassDeclaration, ClassElement, ComputedPropertyName, ConstructorDeclaration, GetAccessorDeclaration, Identifier, MethodDeclaration, Node, NumericLiteral, ParameterDeclaration, PropertyDeclaration, PropertyName, SetAccessorDeclaration, StringLiteral} from "typescript";
+
 export interface IReassembler {
-	reassembleModifiers (compiled: Statement|Expression|Node, declaration: NodeArray<Modifier>|undefined): NodeArray<Modifier>|undefined;
-	reassembleFunctionLikeDeclaration (compiled: FunctionLikeDeclaration, declaration: FunctionLikeDeclaration): FunctionLikeDeclaration;
-	reassembleExpression (compiled: Expression|Statement|Node, declaration: Expression|Statement|Node): Expression|Statement|Node;
+	reassembleNode (compiled: Node, declaration: Node): Node;
 	reassembleStringLiteral (compiled: StringLiteral, declaration: StringLiteral): StringLiteral;
 	reassembleNumericLiteral (compiled: NumericLiteral, declaration: NumericLiteral): NumericLiteral;
 	reassembleIdentifier (compiled: Identifier, declaration: Identifier): Identifier;
@@ -14,5 +13,6 @@ export interface IReassembler {
 	reassembleClassDeclaration (compiled: ClassDeclaration, declaration: ClassDeclaration): ClassDeclaration;
 	reassembleParameterDeclaration (compiled: ParameterDeclaration, declaration: ParameterDeclaration): ParameterDeclaration;
 	reassembleConstructorDeclaration (compiled: ConstructorDeclaration, declaration: ConstructorDeclaration): ConstructorDeclaration;
-	reassembleAccessor (compiled: AccessorDeclaration, declaration: AccessorDeclaration): AccessorDeclaration;
+	reassembleGetAccessor (compiled: GetAccessorDeclaration, declaration: GetAccessorDeclaration): GetAccessorDeclaration;
+	reassembleSetAccessor (compiled: SetAccessorDeclaration, declaration: SetAccessorDeclaration): SetAccessorDeclaration;
 }

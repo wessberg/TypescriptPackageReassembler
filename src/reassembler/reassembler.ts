@@ -1,19 +1,23 @@
 import {IReassembler} from "./i-reassembler";
-import {AccessorDeclaration, ClassDeclaration, ClassElement, ComputedPropertyName, ConstructorDeclaration, createNodeArray, Expression, FunctionLikeDeclaration, Identifier, isAccessor, isClassDeclaration, isClassElement, isComputedPropertyName, isConstructorDeclaration, isIdentifier, isMethodDeclaration, isNumericLiteral, isParameter, isPropertyDeclaration, isPropertyName, isStringLiteral, MethodDeclaration, Modifier, Node, NodeArray, NumericLiteral, ParameterDeclaration, PropertyDeclaration, PropertyName, Statement, StringLiteral} from "typescript";
+import {ClassDeclaration, ClassElement, ComputedPropertyName, ConstructorDeclaration, createNodeArray, Expression, GetAccessorDeclaration, Identifier, isClassDeclaration, isClassElement, isComputedPropertyName, isConstructorDeclaration, isGetAccessorDeclaration, isIdentifier, isMethodDeclaration, isNumericLiteral, isParameter, isPropertyDeclaration, isPropertyName, isSetAccessorDeclaration, isStringLiteral, MethodDeclaration, Node, NodeArray, NumericLiteral, ParameterDeclaration, PropertyDeclaration, PropertyName, SetAccessorDeclaration, Statement, StringLiteral, updateClassDeclaration, updateConstructor, updateGetAccessor, updateMethod, updateParameter, updateProperty, updateSetAccessor} from "typescript";
+import {IMatcher} from "../matcher/i-matcher";
+import {ICopier} from "../copier/i-copier";
 
 /**
  * A class that can "reassemble" compiled expressions with their related declarations.
  * This useful for adding type information to compiled code, for example to re-associate type info that has been compiled away.
  */
 export class Reassembler implements IReassembler {
+	constructor (private matcher: IMatcher, private copier: ICopier) {
+	}
 
 	/**
 	 * Reassembles any expression
-	 * @param {Expression | Statement | Node} compiled
-	 * @param {Expression | Statement | Node} declaration
-	 * @returns {Expression | Statement | Node}
+	 * @param {Node} compiled
+	 * @param {Node} declaration
+	 * @returns {Node}
 	 */
-	public reassembleExpression (compiled: Expression|Statement|Node, declaration: Expression|Statement|Node): Expression|Statement|Node {
+	public reassembleNode (compiled: Node, declaration: Expression|Statement|Node): Node {
 		if (isStringLiteral(compiled) && isStringLiteral(declaration)) return this.reassembleStringLiteral(compiled, declaration);
 		else if (isNumericLiteral(compiled) && isNumericLiteral(declaration)) return this.reassembleNumericLiteral(compiled, declaration);
 		else if (isIdentifier(compiled) && isIdentifier(declaration)) return this.reassembleIdentifier(compiled, declaration);
@@ -25,7 +29,8 @@ export class Reassembler implements IReassembler {
 		else if (isClassDeclaration(compiled) && isClassDeclaration(declaration)) return this.reassembleClassDeclaration(compiled, declaration);
 		else if (isParameter(compiled) && isParameter(declaration)) return this.reassembleParameterDeclaration(compiled, declaration);
 		else if (isConstructorDeclaration(compiled) && isConstructorDeclaration(declaration)) return this.reassembleConstructorDeclaration(compiled, declaration);
-		else if (isAccessor(compiled) && isAccessor(declaration)) return this.reassembleAccessor(compiled, declaration);
+		else if (isGetAccessorDeclaration(compiled) && isGetAccessorDeclaration(declaration)) return this.reassembleGetAccessor(compiled, declaration);
+		else if (isSetAccessorDeclaration(compiled) && isSetAccessorDeclaration(declaration)) return this.reassembleSetAccessor(compiled, declaration);
 		// Return the original expression.
 		return compiled;
 	}
@@ -37,7 +42,13 @@ export class Reassembler implements IReassembler {
 	 * @returns {ConstructorDeclaration}
 	 */
 	public reassembleConstructorDeclaration (compiled: ConstructorDeclaration, declaration: ConstructorDeclaration): ConstructorDeclaration {
-		return this.reassembleFunctionLikeDeclaration(compiled, declaration);
+		return updateConstructor(
+			compiled,
+			compiled.decorators,
+			compiled.modifiers,
+			compiled.parameters.map((parameter, index) => this.reassembleParameterDeclaration(parameter, declaration.parameters[index])),
+			compiled.body
+		);
 	}
 
 	/**
@@ -96,61 +107,22 @@ export class Reassembler implements IReassembler {
 	}
 
 	/**
-	 * Reassembles a FunctionLikeDeclaration
-	 * @template T
-	 * @param {T} compiled
-	 * @param {T} declaration
-	 * @returns {T}
-	 */
-	public reassembleFunctionLikeDeclaration<T extends FunctionLikeDeclaration> (compiled: T, declaration: T): T {
-		// Assign the type of the accessor to the compiled one
-		const parent = compiled;
-		compiled.type = declaration.type;
-		// Re-assign the old parent to the type
-		if (compiled.type != null) compiled.type.parent = parent;
-
-		// Assign the parameters to the compiled one.
-		compiled.parameters = createNodeArray(compiled.parameters.map((parameter, index) => this.reassembleParameterDeclaration(parameter, declaration.parameters[index])));
-		compiled.modifiers = this.reassembleModifiers(compiled, declaration.modifiers);
-		return compiled;
-	}
-
-	/**
-	 * Sets all the provided modifiers on the given compiled statement
-	 * @param {Statement|Expression|Node} compiled
-	 * @param {NodeArray<Modifier>} [declaration]
-	 * @returns {NodeArray<Modifier>?}
-	 */
-	public reassembleModifiers (compiled: Statement|Expression|Node, declaration: NodeArray<Modifier>|undefined): NodeArray<Modifier>|undefined {
-		if (declaration == null) return compiled.modifiers;
-		const newModifiers: Modifier[] = [...(compiled.modifiers == null ? [] : compiled.modifiers)];
-		declaration.forEach(modifier => {
-			// If the compiled one doesn't already have the modifier
-			if (compiled.modifiers != null && !compiled.modifiers.some(compiledModifier => compiledModifier.kind === modifier.kind)) {
-				modifier.parent = compiled;
-				newModifiers.push(modifier);
-			}
-		});
-		compiled.modifiers = createNodeArray(newModifiers);
-		return compiled.modifiers;
-	}
-
-	/**
 	 * Reassembles a PropertyDeclaration
 	 * @param {PropertyDeclaration} compiled
 	 * @param {PropertyDeclaration} declaration
 	 * @returns {PropertyDeclaration}
 	 */
 	public reassemblePropertyDeclaration (compiled: PropertyDeclaration, declaration: PropertyDeclaration): PropertyDeclaration {
-		// Assign the type of the accessor to the compiled one
-		const parent = compiled;
-		compiled.type = declaration.type;
-		// Re-assign the old parent to the type
-		if (compiled.type != null) compiled.type.parent = parent;
-
-		// Assign the parameters to the compiled one.
-		compiled.modifiers = this.reassembleModifiers(compiled, declaration.modifiers);
-		return compiled;
+		// Assign the type of the property to the compiled one
+		return updateProperty(
+			compiled,
+			compiled.decorators,
+			compiled.modifiers,
+			compiled.name,
+			compiled.questionToken,
+			declaration.type == null ? undefined : this.copier.copyType(declaration.type),
+			compiled.initializer
+		);
 	}
 
 	/**
@@ -160,7 +132,18 @@ export class Reassembler implements IReassembler {
 	 * @returns {MethodDeclaration}
 	 */
 	public reassembleMethodDeclaration (compiled: MethodDeclaration, declaration: MethodDeclaration): MethodDeclaration {
-		return this.reassembleFunctionLikeDeclaration(compiled, declaration);
+		return updateMethod(
+			compiled,
+			compiled.decorators,
+			compiled.modifiers,
+			compiled.asteriskToken,
+			compiled.name,
+			compiled.questionToken,
+			declaration.typeParameters == null ? undefined : this.copier.copyTypeParameterDeclarations(declaration.typeParameters),
+			compiled.parameters.map((parameter, index) => this.reassembleParameterDeclaration(parameter, declaration.parameters[index])),
+			declaration.type == null ? undefined : this.copier.copyType(declaration.type),
+			compiled.body
+		);
 	}
 
 	/**
@@ -173,7 +156,8 @@ export class Reassembler implements IReassembler {
 		if (isConstructorDeclaration(compiled) && isConstructorDeclaration(declaration)) return this.reassembleConstructorDeclaration(compiled, declaration);
 		else if (isPropertyDeclaration(compiled) && isPropertyDeclaration(declaration)) return this.reassemblePropertyDeclaration(compiled, declaration);
 		else if (isMethodDeclaration(compiled) && isMethodDeclaration(declaration)) return this.reassembleMethodDeclaration(compiled, declaration);
-		else if (isAccessor(compiled) && isAccessor(declaration)) return this.reassembleAccessor(compiled, declaration);
+		else if (isGetAccessorDeclaration(compiled) && isGetAccessorDeclaration(declaration)) return this.reassembleGetAccessor(compiled, declaration);
+		else if (isSetAccessorDeclaration(compiled) && isSetAccessorDeclaration(declaration)) return this.reassembleSetAccessor(compiled, declaration);
 		// Nothing to change here. Return the original
 		return compiled;
 	}
@@ -185,40 +169,65 @@ export class Reassembler implements IReassembler {
 	 * @returns {ClassElement}
 	 */
 	public reassembleMatchingClassElement (compiled: ClassElement, declarations: NodeArray<ClassElement>): ClassElement {
+		const match = this.matcher.findMatchingClassElement(compiled, declarations);
+		if (match == null) return compiled;
+
 		if (isConstructorDeclaration(compiled)) {
-			const constructorMatch = <ConstructorDeclaration|undefined> declarations.find(member => isConstructorDeclaration(member));
-			if (constructorMatch == null) return compiled;
-			return this.reassembleConstructorDeclaration(compiled, constructorMatch);
+			return this.reassembleConstructorDeclaration(compiled, <ConstructorDeclaration> match);
 		}
 
 		else if (isMethodDeclaration(compiled)) {
-			const methodMatch = <MethodDeclaration|undefined> declarations.find(member => isMethodDeclaration(member));
-			if (methodMatch == null) return compiled;
-			return this.reassembleMethodDeclaration(compiled, methodMatch);
+			return this.reassembleMethodDeclaration(compiled, <MethodDeclaration> match);
 		}
 
 		else if (isPropertyDeclaration(compiled)) {
-			const propertyMatch = <PropertyDeclaration|undefined> declarations.find(member => isPropertyDeclaration(member));
-			if (propertyMatch == null) return compiled;
-			return this.reassemblePropertyDeclaration(compiled, propertyMatch);
+			return this.reassemblePropertyDeclaration(compiled, <PropertyDeclaration> match);
 		}
 
-		else if (isAccessor(compiled)) {
-			const accessorMatch = <AccessorDeclaration|undefined> declarations.find(member => isAccessor(member));
-			if (accessorMatch == null) return compiled;
-			return this.reassembleAccessor(compiled, accessorMatch);
+		else if (isGetAccessorDeclaration(compiled)) {
+			return this.reassembleGetAccessor(compiled, <GetAccessorDeclaration> match);
 		}
+
+		else if (isSetAccessorDeclaration(compiled)) {
+			return this.reassembleSetAccessor(compiled, <SetAccessorDeclaration> match);
+		}
+
 		return compiled;
 	}
 
 	/**
-	 * Reassembles the provided AccessorDeclaration
-	 * @param {AccessorDeclaration} compiled
-	 * @param {AccessorDeclaration} declaration
-	 * @returns {AccessorDeclaration}
+	 * Reassembles the provided GetAccessorDeclaration
+	 * @param {GetAccessorDeclaration} compiled
+	 * @param {GetAccessorDeclaration} declaration
+	 * @returns {GetAccessorDeclaration}
 	 */
-	public reassembleAccessor (compiled: AccessorDeclaration, declaration: AccessorDeclaration): AccessorDeclaration {
-		return this.reassembleFunctionLikeDeclaration(compiled, declaration);
+	public reassembleGetAccessor (compiled: GetAccessorDeclaration, declaration: GetAccessorDeclaration): GetAccessorDeclaration {
+		return updateGetAccessor(
+			compiled,
+			compiled.decorators,
+			compiled.modifiers,
+			compiled.name,
+			compiled.parameters.map((parameter, index) => this.reassembleParameterDeclaration(parameter, declaration.parameters[index])),
+			declaration.type == null ? undefined : this.copier.copyType(declaration.type),
+			compiled.body
+		);
+	}
+
+	/**
+	 * Reassembles the provided SetAccessorDeclaration
+	 * @param {SetAccessorDeclaration} compiled
+	 * @param {SetAccessorDeclaration} declaration
+	 * @returns {SetAccessorDeclaration}
+	 */
+	public reassembleSetAccessor (compiled: SetAccessorDeclaration, declaration: SetAccessorDeclaration): SetAccessorDeclaration {
+		return updateSetAccessor(
+			compiled,
+			compiled.decorators,
+			compiled.modifiers,
+			compiled.name,
+			compiled.parameters.map((parameter, index) => this.reassembleParameterDeclaration(parameter, declaration.parameters[index])),
+			compiled.body
+		);
 	}
 
 	/**
@@ -228,9 +237,15 @@ export class Reassembler implements IReassembler {
 	 * @returns {ClassDeclaration}
 	 */
 	public reassembleClassDeclaration (compiled: ClassDeclaration, declaration: ClassDeclaration): ClassDeclaration {
-		// TODO: Add "implements" heritage back-in. This will be stripped away!
-		compiled.members.forEach(member => this.reassembleMatchingClassElement(member, declaration.members));
-		return compiled;
+		return updateClassDeclaration(
+			compiled,
+			compiled.decorators,
+			compiled.modifiers,
+			compiled.name,
+			declaration.typeParameters == null ? undefined : this.copier.copyTypeParameterDeclarations(declaration.typeParameters),
+			declaration.heritageClauses == null ? createNodeArray() : this.copier.copyHeritageClauses(declaration.heritageClauses),
+			compiled.members.map(member => this.reassembleMatchingClassElement(member, declaration.members))
+		);
 	}
 
 	/**
@@ -241,14 +256,15 @@ export class Reassembler implements IReassembler {
 	 */
 	public reassembleParameterDeclaration (compiled: ParameterDeclaration, declaration: ParameterDeclaration): ParameterDeclaration {
 		// Assign the type of the parameter to the compiled one
-		const parent = compiled;
-		compiled.type = declaration.type;
-		// Re-assign the old parent to the type
-		if (compiled.type != null) compiled.type.parent = parent;
-
-		// Set all modifiers
-		compiled.modifiers = this.reassembleModifiers(compiled, declaration.modifiers);
-		return compiled;
+		return updateParameter(
+			compiled,
+			compiled.decorators,
+			compiled.modifiers,
+			compiled.dotDotDotToken,
+			compiled.name,
+			compiled.questionToken,
+			declaration.type == null ? undefined : this.copier.copyType(declaration.type),
+			compiled.initializer
+		);
 	}
-
 }

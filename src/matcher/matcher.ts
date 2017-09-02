@@ -1,10 +1,14 @@
-import {ClassDeclaration, ClassElement, AccessorDeclaration, isAccessor, ComputedPropertyName, Expression, Identifier, isClassDeclaration, isClassElement, isComputedPropertyName, isIdentifier, isMethodDeclaration, isNumericLiteral, isPropertyDeclaration, isPropertyName, isStringLiteral, MethodDeclaration, Node, NodeArray, NumericLiteral, PropertyDeclaration, PropertyName, Statement, StringLiteral} from "typescript";
+import {ClassDeclaration, ClassElement, ComputedPropertyName, Expression, GetAccessorDeclaration, Identifier, isClassDeclaration, isClassElement, isComputedPropertyName, isConstructorDeclaration, isGetAccessorDeclaration, isIdentifier, isMethodDeclaration, isNumericLiteral, isPropertyDeclaration, isPropertyName, isSetAccessorDeclaration, isStringLiteral, MethodDeclaration, Node, NodeArray, NumericLiteral, PropertyDeclaration, PropertyName, SetAccessorDeclaration, SourceFile, Statement, StringLiteral} from "typescript";
 import {IMatcher} from "./i-matcher";
+import {ITransformUtil} from "../util/transform-util/i-transform-util";
 
 /**
  * A class that can match compiled statements with their declaration counterparts
  */
 export class Matcher implements IMatcher {
+
+	constructor (private transformUtil: ITransformUtil) {
+	}
 
 	/**
 	 * Returns true if the two expressions are matching
@@ -12,7 +16,7 @@ export class Matcher implements IMatcher {
 	 * @param {Expression | Statement | Node} declaration
 	 * @returns {boolean}
 	 */
-	public isExpressionMatching (compiled: Expression|Statement|Node, declaration: Expression|Statement|Node): boolean {
+	public isNodeMatching (compiled: Expression|Statement|Node, declaration: Expression|Statement|Node): boolean {
 		if (isClassDeclaration(compiled) && isClassDeclaration(declaration)) return this.isClassDeclarationMatching(compiled, declaration);
 		else if (isStringLiteral(compiled) && isStringLiteral(declaration)) return this.isStringLiteralMatching(compiled, declaration);
 		else if (isNumericLiteral(compiled) && isNumericLiteral(declaration)) return this.isNumericLiteralMatching(compiled, declaration);
@@ -22,18 +26,19 @@ export class Matcher implements IMatcher {
 		else if (isPropertyDeclaration(compiled) && isPropertyDeclaration(declaration)) return this.isPropertyDeclarationMatching(compiled, declaration);
 		else if (isMethodDeclaration(compiled) && isMethodDeclaration(declaration)) return this.isMethodDeclarationMatching(compiled, declaration);
 		else if (isClassElement(compiled) && isClassElement(declaration)) return this.isClassElementMatching(compiled, declaration);
-		else if (isAccessor(compiled) && isAccessor(declaration)) return this.isAccessorMatching(compiled, declaration);
+		else if (isGetAccessorDeclaration(compiled) && isGetAccessorDeclaration(declaration)) return this.isGetAccessorMatching(compiled, declaration);
+		else if (isSetAccessorDeclaration(compiled) && isSetAccessorDeclaration(declaration)) return this.isSetAccessorMatching(compiled, declaration);
 		return false;
 	}
 
 	/**
 	 * Finds the declaration statement that matches the provided compiled expression
 	 * @param {Expression | Statement | Node} compiled
-	 * @param {NodeArray<Statement | Expression | Node>} declarations
+	 * @param {NodeArray<Statement | Expression | Node>|SourceFile} declarations
 	 * @returns {Expression}
 	 */
-	public findMatchingExpression (compiled: Expression|Statement|Node, declarations: NodeArray<Statement|Expression|Node>): Expression|undefined {
-		return <Expression|undefined> declarations.find(declaration => this.isExpressionMatching(compiled, declaration));
+	public findMatchingNode (compiled: Expression|Statement|Node, declarations: NodeArray<Statement|Expression|Node>|SourceFile): Expression|undefined {
+		return <Expression|undefined> this.transformUtil.getStatements(declarations).find(declaration => this.isNodeMatching(compiled, declaration));
 	}
 
 	/**
@@ -93,7 +98,7 @@ export class Matcher implements IMatcher {
 	 * @returns {boolean}
 	 */
 	public isComputedPropertyNameMatching (compiled: ComputedPropertyName, declaration: ComputedPropertyName): boolean {
-		return this.isExpressionMatching(compiled.expression, declaration.expression);
+		return this.isNodeMatching(compiled.expression, declaration.expression);
 	}
 
 	/**
@@ -122,12 +127,23 @@ export class Matcher implements IMatcher {
 	}
 
 	/**
-	 * Returns true if the compiled AccessorDeclaration is related to the provided declaration
-	 * @param {AccessorDeclaration} compiled
-	 * @param {AccessorDeclaration} declaration
+	 * Returns true if the compiled GetAccessorDeclaration is related to the provided declaration
+	 * @param {GetAccessorDeclaration} compiled
+	 * @param {GetAccessorDeclaration} declaration
 	 * @returns {boolean}
 	 */
-	public isAccessorMatching (compiled: AccessorDeclaration, declaration: AccessorDeclaration): boolean {
+	public isGetAccessorMatching (compiled: GetAccessorDeclaration, declaration: GetAccessorDeclaration): boolean {
+		// They will be matching if their names are identical
+		return this.isPropertyNameMatching(compiled.name, declaration.name);
+	}
+
+	/**
+	 * Returns true if the compiled GetAccessorDeclaration is related to the provided declaration
+	 * @param {SetAccessorDeclaration} compiled
+	 * @param {SetAccessorDeclaration} declaration
+	 * @returns {boolean}
+	 */
+	public isSetAccessorMatching (compiled: SetAccessorDeclaration, declaration: SetAccessorDeclaration): boolean {
 		// They will be matching if their names are identical
 		return this.isPropertyNameMatching(compiled.name, declaration.name);
 	}
@@ -152,7 +168,9 @@ export class Matcher implements IMatcher {
 	public isClassElementMatching (compiled: ClassElement, declaration: ClassElement): boolean {
 		if (isPropertyDeclaration(compiled) && isPropertyDeclaration(declaration)) return this.isPropertyDeclarationMatching(compiled, declaration);
 		else if (isMethodDeclaration(compiled) && isMethodDeclaration(declaration)) return this.isMethodDeclarationMatching(compiled, declaration);
-		else if (isAccessor(compiled) && isAccessor(declaration)) return this.isAccessorMatching(compiled, declaration);
+		else if (isGetAccessorDeclaration(compiled) && isGetAccessorDeclaration(declaration)) return this.isGetAccessorMatching(compiled, declaration);
+		else if (isSetAccessorDeclaration(compiled) && isSetAccessorDeclaration(declaration)) return this.isSetAccessorMatching(compiled, declaration);
+		else if (isConstructorDeclaration(compiled) && isConstructorDeclaration(declaration)) return true;
 		return false;
 	}
 
