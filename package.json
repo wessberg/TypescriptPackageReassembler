@@ -1,6 +1,6 @@
 {
 	"name": "@wessberg/typescript-package-reassembler",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "A library that can (re)add type information from a Typescript SourceFile to another. Useful for 'merging' declarations with compiled un-typed files, for example inside node_modules",
 	"scripts": {
 		"changelog:generate": "conventional-changelog --outfile CHANGELOG.md --release-count 0",
