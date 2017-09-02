@@ -1,3 +1,12 @@
+<a name="0.0.4"></a>
+## 0.0.4 (2017-09-02)
+
+* 0.0.4 ([21c4084](https://github.com/wessberg/TypescriptPackageReassembler/commit/21c4084))
+* Added Tuple types ([bc044cd](https://github.com/wessberg/TypescriptPackageReassembler/commit/bc044cd))
+* Bumped version ([9291070](https://github.com/wessberg/TypescriptPackageReassembler/commit/9291070))
+
+
+
 <a name="0.0.3"></a>
 ## 0.0.3 (2017-09-02)
 
