@@ -1,3 +1,12 @@
+<a name="0.0.5"></a>
+## 0.0.5 (2017-09-02)
+
+* 0.0.5 ([71dab5e](https://github.com/wessberg/TypescriptPackageReassembler/commit/71dab5e))
+* Added parenthesized type nodes ([0ba5d40](https://github.com/wessberg/TypescriptPackageReassembler/commit/0ba5d40))
+* Bumped version ([b0419e7](https://github.com/wessberg/TypescriptPackageReassembler/commit/b0419e7))
+
+
+
 <a name="0.0.4"></a>
 ## 0.0.4 (2017-09-02)
 
