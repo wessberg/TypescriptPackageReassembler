@@ -1,4 +1,4 @@
-import {ArrayBindingElement, ArrayBindingPattern, UnionTypeNode, TupleTypeNode, ParenthesizedTypeNode, isParenthesizedTypeNode, createParenthesizedType, isTupleTypeNode, createTupleTypeNode, isUnionTypeNode, createUnionTypeNode, ArrayTypeNode, isArrayTypeNode, createArrayTypeNode, IntersectionTypeNode, isIntersectionTypeNode, createIntersectionTypeNode, BindingElement, createTrue, createFalse, BooleanLiteral, createNumericLiteral, BindingName, ComputedPropertyName, createArrayBindingPattern, createBindingElement, createComputedPropertyName, createDecorator, createExpressionWithTypeArguments, createFunctionTypeNode, createHeritageClause, createIdentifier, createIndexedAccessTypeNode, createKeywordTypeNode, createLiteral, createLiteralTypeNode, createMappedTypeNode, createNode, createNodeArray, createObjectBindingPattern, createOmittedExpression, createParameter, createPropertySignature, createQualifiedName, createToken, createTypeLiteralNode, createTypeOperatorNode, createTypeParameterDeclaration, createTypeReferenceNode, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, IndexedAccessTypeNode, isArrayBindingPattern, isBindingElement, isFunctionTypeNode, isIdentifier, isIndexedAccessTypeNode, isLiteralTypeNode, isMappedTypeNode, isNumericLiteral, isPropertySignature, isQualifiedName, isStringLiteral, isTypeLiteralNode, isTypeOperatorNode, isTypeReferenceNode, KeywordTypeNode, LiteralTypeNode, MappedTypeNode, Modifier, NodeArray, NodeFlags, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, PropertyName, PropertySignature, QualifiedName, StringLiteral, SyntaxKind, Token, TypeElement, TypeLiteralNode, TypeNode, TypeOperatorNode, TypeParameterDeclaration, TypeReferenceNode} from "typescript";
+import {ArrayBindingElement, isTypePredicateNode, TypePredicateNode, createTypePredicateNode, ArrayBindingPattern, UnionTypeNode, TupleTypeNode, ParenthesizedTypeNode, isParenthesizedTypeNode, createParenthesizedType, isTupleTypeNode, createTupleTypeNode, isUnionTypeNode, createUnionTypeNode, ArrayTypeNode, isArrayTypeNode, createArrayTypeNode, IntersectionTypeNode, isIntersectionTypeNode, createIntersectionTypeNode, BindingElement, createTrue, createFalse, BooleanLiteral, createNumericLiteral, BindingName, ComputedPropertyName, createArrayBindingPattern, createBindingElement, createComputedPropertyName, createDecorator, createExpressionWithTypeArguments, createFunctionTypeNode, createHeritageClause, createIdentifier, createIndexedAccessTypeNode, createKeywordTypeNode, createLiteral, createLiteralTypeNode, createMappedTypeNode, createNode, createNodeArray, createObjectBindingPattern, createOmittedExpression, createParameter, createPropertySignature, createQualifiedName, createToken, createTypeLiteralNode, createTypeOperatorNode, createTypeParameterDeclaration, createTypeReferenceNode, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, IndexedAccessTypeNode, isArrayBindingPattern, isBindingElement, isFunctionTypeNode, isIdentifier, isIndexedAccessTypeNode, isLiteralTypeNode, isMappedTypeNode, isNumericLiteral, isPropertySignature, isQualifiedName, isStringLiteral, isTypeLiteralNode, isTypeOperatorNode, isTypeReferenceNode, KeywordTypeNode, LiteralTypeNode, MappedTypeNode, Modifier, NodeArray, NodeFlags, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, PropertyName, PropertySignature, QualifiedName, StringLiteral, SyntaxKind, Token, TypeElement, TypeLiteralNode, TypeNode, TypeOperatorNode, TypeParameterDeclaration, TypeReferenceNode} from "typescript";
 import {ICopier} from "./i-copier";
 import {isKeywordTypeNode} from "../predicate/keyword-type-node/is-keyword-type-node";
 import {isBooleanLiteral, isLastTypeNode, LastTypeNode} from "@wessberg/typescript-ast-util";
@@ -69,8 +69,21 @@ export class Copier implements ICopier {
 			return this.copyParenthesizedType(type);
 		}
 
+		else if (isTypePredicateNode(type)) {
+			return this.copyTypePredicateNode(type);
+		}
+
 		console.log(`${this.constructor.name} could not format a type of kind`, SyntaxKind[type.kind], "around here:", type.getSourceFile().text.slice(type.pos, type.end));
 		return type;
+	}
+
+	/**
+	 * Copies a LiteralTypeNode
+	 * @param {LiteralTypeNode} type
+	 * @returns {LiteralTypeNode}
+	 */
+	public copyTypePredicateNode (type: TypePredicateNode): TypePredicateNode {
+		return createTypePredicateNode(type.parameterName, type.type);
 	}
 
 	/**
