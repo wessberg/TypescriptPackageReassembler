@@ -1,3 +1,12 @@
+<a name="0.0.6"></a>
+## 0.0.6 (2017-09-10)
+
+* 0.0.6 ([79105f8](https://github.com/wessberg/TypescriptPackageReassembler/commit/79105f8))
+* Added handling for TypePredicates ([19ff279](https://github.com/wessberg/TypescriptPackageReassembler/commit/19ff279))
+* Bumped version ([93f0433](https://github.com/wessberg/TypescriptPackageReassembler/commit/93f0433))
+
+
+
 <a name="0.0.5"></a>
 ## 0.0.5 (2017-09-02)
 
