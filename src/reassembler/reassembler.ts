@@ -8,7 +8,8 @@ import {ICopier} from "../copier/i-copier";
  * This useful for adding type information to compiled code, for example to re-associate type info that has been compiled away.
  */
 export class Reassembler implements IReassembler {
-	constructor (private matcher: IMatcher, private copier: ICopier) {
+	constructor (private readonly matcher: IMatcher,
+							 private readonly copier: ICopier) {
 	}
 
 	/**

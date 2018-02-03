@@ -1,7 +1,7 @@
-import {ArrayBindingElement, isTypePredicateNode, TypePredicateNode, createTypePredicateNode, ArrayBindingPattern, UnionTypeNode, TupleTypeNode, ParenthesizedTypeNode, isParenthesizedTypeNode, createParenthesizedType, isTupleTypeNode, createTupleTypeNode, isUnionTypeNode, createUnionTypeNode, ArrayTypeNode, isArrayTypeNode, createArrayTypeNode, IntersectionTypeNode, isIntersectionTypeNode, createIntersectionTypeNode, BindingElement, createTrue, createFalse, BooleanLiteral, createNumericLiteral, BindingName, ComputedPropertyName, createArrayBindingPattern, createBindingElement, createComputedPropertyName, createDecorator, createExpressionWithTypeArguments, createFunctionTypeNode, createHeritageClause, createIdentifier, createIndexedAccessTypeNode, createKeywordTypeNode, createLiteral, createLiteralTypeNode, createMappedTypeNode, createNode, createNodeArray, createObjectBindingPattern, createOmittedExpression, createParameter, createPropertySignature, createQualifiedName, createToken, createTypeLiteralNode, createTypeOperatorNode, createTypeParameterDeclaration, createTypeReferenceNode, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, IndexedAccessTypeNode, isArrayBindingPattern, isBindingElement, isFunctionTypeNode, isIdentifier, isIndexedAccessTypeNode, isLiteralTypeNode, isMappedTypeNode, isNumericLiteral, isPropertySignature, isQualifiedName, isStringLiteral, isTypeLiteralNode, isTypeOperatorNode, isTypeReferenceNode, KeywordTypeNode, LiteralTypeNode, MappedTypeNode, Modifier, NodeArray, NodeFlags, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, PropertyName, PropertySignature, QualifiedName, StringLiteral, SyntaxKind, Token, TypeElement, TypeLiteralNode, TypeNode, TypeOperatorNode, TypeParameterDeclaration, TypeReferenceNode} from "typescript";
-import {ICopier} from "./i-copier";
+import {isBooleanLiteral} from "@wessberg/typescript-ast-util";
+import {ArrayBindingElement, ArrayBindingPattern, ArrayTypeNode, BindingElement, BindingName, BooleanLiteral, ComputedPropertyName, createArrayBindingPattern, createArrayTypeNode, createBindingElement, createComputedPropertyName, createDecorator, createExpressionWithTypeArguments, createFalse, createFunctionTypeNode, createHeritageClause, createIdentifier, createIndexedAccessTypeNode, createIntersectionTypeNode, createKeywordTypeNode, createLiteral, createLiteralTypeNode, createMappedTypeNode, createNodeArray, createNoSubstitutionTemplateLiteral, createNumericLiteral, createObjectBindingPattern, createOmittedExpression, createParameter, createParenthesizedType, createPrefix, createPropertySignature, createQualifiedName, createToken, createTrue, createTupleTypeNode, createTypeLiteralNode, createTypeOperatorNode, createTypeParameterDeclaration, createTypePredicateNode, createTypeReferenceNode, createUnionTypeNode, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, IndexedAccessTypeNode, IntersectionTypeNode, isArrayBindingPattern, isArrayTypeNode, isBindingElement, isFunctionTypeNode, isIdentifier, isIndexedAccessTypeNode, isIntersectionTypeNode, isLiteralExpression, isLiteralTypeNode, isMappedTypeNode, isNoSubstitutionTemplateLiteral, isNumericLiteral, isParenthesizedTypeNode, isPropertySignature, isQualifiedName, isRegularExpressionLiteral, isStringLiteral, isTupleTypeNode, isTypeLiteralNode, isTypeOperatorNode, isTypePredicateNode, isTypeReferenceNode, isUnionTypeNode, KeywordTypeNode, LiteralExpression, LiteralTypeNode, MappedTypeNode, Modifier, NodeArray, NoSubstitutionTemplateLiteral, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, ParenthesizedTypeNode, PropertyName, PropertySignature, QualifiedName, RegularExpressionLiteral, StringLiteral, SyntaxKind, Token, TupleTypeNode, TypeElement, TypeLiteralNode, TypeNode, TypeOperatorNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnionTypeNode} from "typescript";
 import {isKeywordTypeNode} from "../predicate/keyword-type-node/is-keyword-type-node";
-import {isBooleanLiteral, isLastTypeNode, LastTypeNode} from "@wessberg/typescript-ast-util";
+import {ICopier} from "./i-copier";
 
 /**
  * A class that can copy nodes
@@ -27,10 +27,6 @@ export class Copier implements ICopier {
 
 		else if (isTypeLiteralNode(type)) {
 			return this.copyTypeLiteralNode(type);
-		}
-
-		else if (isLastTypeNode(type)) {
-			return <TypeNode> </*tslint:disable*/any/*tslint:disable*/> this.copyLastTypeNode(type);
 		}
 
 		else if (isFunctionTypeNode(type)) {
@@ -87,12 +83,55 @@ export class Copier implements ICopier {
 	}
 
 	/**
+	 * Copies a LiteralExpression
+	 * @param {LiteralExpression} type
+	 * @returns {LiteralExpression}
+	 */
+	public copyLiteralExpression (type: LiteralExpression): LiteralExpression {
+		if (isRegularExpressionLiteral(type)) {
+			return this.copyRegularExpressionLiteral(type);
+		}
+
+		else if (isNoSubstitutionTemplateLiteral(type)) {
+			return this.copyNoSubstitutionTemplateLiteral(type);
+		}
+
+		else if (isNumericLiteral(type)) {
+			return this.copyNumericLiteral(type);
+		}
+
+		else if (isStringLiteral(type)) {
+			return this.copyStringLiteral(type);
+		}
+
+		// Could no copy the type - return it as it was
+		return type;
+	}
+
+	/**
 	 * Copies a LiteralTypeNode
 	 * @param {LiteralTypeNode} type
 	 * @returns {LiteralTypeNode}
 	 */
 	public copyLiteralTypeNode (type: LiteralTypeNode): LiteralTypeNode {
-		return createLiteralTypeNode(this.copyExpression(type.literal));
+
+		if (isBooleanLiteral(type.literal)) {
+			return createLiteralTypeNode(
+				this.copyBooleanLiteral(type.literal)
+			);
+		}
+
+		else if (isLiteralExpression(type.literal)) {
+			return createLiteralTypeNode(
+				this.copyLiteralExpression(type.literal)
+			);
+		}
+
+		else {
+			return createLiteralTypeNode(
+				createPrefix(type.literal.operator, type.literal.operand)
+			);
+		}
 	}
 
 	/**
@@ -301,28 +340,6 @@ export class Copier implements ICopier {
 	}
 
 	/**
-	 * Copies a LastTypeNode
-	 * @param {LastTypeNode} type
-	 * @returns {LastTypeNode}
-	 */
-	public copyLastTypeNode (type: LastTypeNode): LastTypeNode {
-		console.log(type);
-		return this.createLastTypeNode(this.copyIdentifier(type.literal));
-	}
-
-	/**
-	 * Creates a new LastTypeNode
-	 * @param {Identifier} literal
-	 * @returns {LastTypeNode}
-	 */
-	public createLastTypeNode (literal: Identifier): LastTypeNode {
-		const node = <LastTypeNode> createNode(SyntaxKind.LastTypeNode, -1, -1);
-		node.flags |= NodeFlags.Synthesized;
-		node.literal = literal;
-		return node;
-	}
-
-	/**
 	 * Copies a KeywordTypeNode
 	 * @param {KeywordTypeNode} type
 	 * @returns {KeywordTypeNode}
@@ -411,6 +428,15 @@ export class Copier implements ICopier {
 	}
 
 	/**
+	 * Copies a NoSubstitutionTemplateLiteral
+	 * @param {NoSubstitutionTemplateLiteral} type
+	 * @returns {NoSubstitutionTemplateLiteral}
+	 */
+	public copyNoSubstitutionTemplateLiteral (type: NoSubstitutionTemplateLiteral): NoSubstitutionTemplateLiteral {
+		return createNoSubstitutionTemplateLiteral(type.text);
+	}
+
+	/**
 	 * Copies a NumericLiteral
 	 * @param {NumericLiteral} type
 	 * @returns {NumericLiteral}
@@ -426,6 +452,19 @@ export class Copier implements ICopier {
 	 */
 	public copyBooleanLiteral (type: BooleanLiteral): BooleanLiteral {
 		return type.kind === SyntaxKind.TrueKeyword ? createTrue() : createFalse();
+	}
+
+	/**
+	 * Copies a RegularExpressionLiteral
+	 * @param {RegularExpressionLiteral} type
+	 * @returns {RegularExpressionLiteral}
+	 */
+	public copyRegularExpressionLiteral (type: RegularExpressionLiteral): RegularExpressionLiteral {
+		// tslint:disable
+		const literal = <RegularExpressionLiteral><any> createLiteral(type.text);
+		// tslint:enable
+		literal.kind = type.kind;
+		return literal;
 	}
 
 	/**

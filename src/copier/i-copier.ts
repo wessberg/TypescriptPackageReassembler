@@ -1,5 +1,4 @@
-import {ArrayBindingElement, LiteralTypeNode, TypePredicateNode, ParenthesizedTypeNode, TupleTypeNode, UnionTypeNode, IntersectionTypeNode, ArrayTypeNode, ArrayBindingPattern, IndexedAccessTypeNode, TypeOperatorNode, BindingElement, BindingName, ComputedPropertyName, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, KeywordTypeNode, MappedTypeNode, Modifier, NodeArray, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, PropertyName, PropertySignature, QualifiedName, StringLiteral, SyntaxKind, Token, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypeReferenceNode} from "typescript";
-import {LastTypeNode} from "@wessberg/typescript-ast-util";
+import {ArrayBindingElement, LiteralTypeNode, TypePredicateNode, ParenthesizedTypeNode, TupleTypeNode, UnionTypeNode, IntersectionTypeNode, ArrayTypeNode, ArrayBindingPattern, IndexedAccessTypeNode, TypeOperatorNode, BindingElement, BindingName, ComputedPropertyName, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, KeywordTypeNode, MappedTypeNode, Modifier, NodeArray, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, PropertyName, PropertySignature, QualifiedName, StringLiteral, SyntaxKind, Token, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypeReferenceNode, RegularExpressionLiteral, NoSubstitutionTemplateLiteral, LiteralExpression} from "typescript";
 
 export interface ICopier {
 	copyTypePredicateNode (type: TypePredicateNode): TypePredicateNode;
@@ -27,10 +26,11 @@ export interface ICopier {
 	copyBindingName (type: BindingName): BindingName;
 	copyDecorator (type: Decorator): Decorator;
 	copyDecorators (type: NodeArray<Decorator>): NodeArray<Decorator>;
-	copyLastTypeNode (type: LastTypeNode): LastTypeNode;
-	createLastTypeNode (literal: Identifier): LastTypeNode;
 	copyKeywordTypeNode (type: KeywordTypeNode): KeywordTypeNode;
 	copyTypeLiteralNode (type: TypeLiteralNode): TypeLiteralNode;
+	copyRegularExpressionLiteral (type: RegularExpressionLiteral): RegularExpressionLiteral;
+	copyNoSubstitutionTemplateLiteral (type: NoSubstitutionTemplateLiteral): NoSubstitutionTemplateLiteral;
+	copyLiteralExpression (type: LiteralExpression): LiteralExpression;
 	copyPropertyName (type: PropertyName): PropertyName;
 	copyComputedPropertyName (type: ComputedPropertyName): ComputedPropertyName;
 	copyStringLiteral (type: StringLiteral): StringLiteral;

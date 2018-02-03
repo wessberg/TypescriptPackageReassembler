@@ -9,7 +9,7 @@ const reassembler = new TypescriptPackageReassembler();
 const fileLoader = new FileLoader();
 const pathUtil = new PathUtil(fileLoader);
 const moduleUtil = new ModuleUtil(fileLoader, pathUtil);
-const languageService = new TypescriptLanguageService(moduleUtil, pathUtil, fileLoader);
+const languageService = new TypescriptLanguageService(moduleUtil, pathUtil, fileLoader, reassembler);
 
 test("foo", t => {
 	const compiledStatements = languageService.addFile({path: "./test/static/foo.js"});

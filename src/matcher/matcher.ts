@@ -7,7 +7,7 @@ import {ITransformUtil} from "../util/transform-util/i-transform-util";
  */
 export class Matcher implements IMatcher {
 
-	constructor (private transformUtil: ITransformUtil) {
+	constructor (private readonly transformUtil: ITransformUtil) {
 	}
 
 	/**
