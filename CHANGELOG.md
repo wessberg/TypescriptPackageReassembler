@@ -1,3 +1,12 @@
+<a name="0.0.8"></a>
+## <small>0.0.8 (2018-03-31)</small>
+
+* 0.0.8 ([99a65a7](https://github.com/wessberg/TypescriptPackageReassembler/commit/99a65a7))
+* Bumped deps ([7e43649](https://github.com/wessberg/TypescriptPackageReassembler/commit/7e43649))
+* Bumped version ([d3ad5fe](https://github.com/wessberg/TypescriptPackageReassembler/commit/d3ad5fe))
+
+
+
 <a name="0.0.7"></a>
 ## <small>0.0.7 (2018-02-03)</small>
 
