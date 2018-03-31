@@ -3,6 +3,8 @@ import {ArrayBindingElement, ArrayBindingPattern, ArrayTypeNode, BindingElement,
 import {isKeywordTypeNode} from "../predicate/keyword-type-node/is-keyword-type-node";
 import {ICopier} from "./i-copier";
 
+// tslint:disable:no-any
+
 /**
  * A class that can copy nodes
  */
@@ -191,9 +193,9 @@ export class Copier implements ICopier {
 	 */
 	public copyMappedTypeNode (type: MappedTypeNode): MappedTypeNode {
 		return createMappedTypeNode(
-			type.readonlyToken == null ? undefined : this.copyToken(type.readonlyToken),
+			type.readonlyToken == null ? undefined : <any> this.copyToken(type.readonlyToken),
 			this.copyTypeParameterDeclaration(type.typeParameter),
-			type.questionToken == null ? undefined : this.copyToken(type.questionToken),
+			type.questionToken == null ? undefined : <any> this.copyToken(type.questionToken),
 			type.type == null ? undefined : this.copyType(type.type)
 		);
 	}
@@ -460,9 +462,7 @@ export class Copier implements ICopier {
 	 * @returns {RegularExpressionLiteral}
 	 */
 	public copyRegularExpressionLiteral (type: RegularExpressionLiteral): RegularExpressionLiteral {
-		// tslint:disable
 		const literal = <RegularExpressionLiteral><any> createLiteral(type.text);
-		// tslint:enable
 		literal.kind = type.kind;
 		return literal;
 	}
@@ -479,12 +479,12 @@ export class Copier implements ICopier {
 
 		else if (isStringLiteral(type)) {
 			// The Typescript typings don't think literals are TypeElements - but they sure can be
-			return <TypeElement> </*tslint:disable*/any/*tslint:disable*/> this.copyStringLiteral(type);
+			return <TypeElement> <any> this.copyStringLiteral(type);
 		}
 
 		else if (isNumericLiteral(type)) {
 			// The Typescript typings don't think literals are TypeElements - but they sure can be
-			return <TypeElement> </*tslint:disable*/any/*tslint:disable*/> this.copyNumericLiteral(type);
+			return <TypeElement> <any> this.copyNumericLiteral(type);
 		}
 
 		throw new TypeError(`${this.constructor.name} could not copy a TypeElement of kind: ${SyntaxKind[type.kind]}`);

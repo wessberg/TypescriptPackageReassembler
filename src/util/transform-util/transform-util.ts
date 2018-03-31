@@ -23,7 +23,6 @@ export class TransformUtil implements ITransformUtil {
 			const compiled = normalizedCompiledStatements[cursor];
 			const declaration = normalizedDeclarationStatements[cursor];
 			sourceFile = transformer(<T>compiled, <U>declaration);
-			console.log("sourceFile:", sourceFile);
 			normalizedCompiledStatements = this.getStatements(sourceFile);
 			cursor++;
 		}
