@@ -1,3 +1,12 @@
+<a name="0.0.9"></a>
+## <small>0.0.9 (2018-04-03)</small>
+
+* 0.0.9 ([a1e1dfe](https://github.com/wessberg/TypescriptPackageReassembler/commit/a1e1dfe))
+* Added support for IndexSignature type elements ([7a14d74](https://github.com/wessberg/TypescriptPackageReassembler/commit/7a14d74))
+* Bumped version ([8d77498](https://github.com/wessberg/TypescriptPackageReassembler/commit/8d77498))
+
+
+
 <a name="0.0.8"></a>
 ## <small>0.0.8 (2018-03-31)</small>
 
