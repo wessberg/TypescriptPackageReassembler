@@ -1,5 +1,5 @@
 import {isBooleanLiteral} from "@wessberg/typescript-ast-util";
-import {ArrayBindingElement, ArrayBindingPattern, ArrayTypeNode, BindingElement, BindingName, BooleanLiteral, ComputedPropertyName, createArrayBindingPattern, createArrayTypeNode, createBindingElement, createComputedPropertyName, createDecorator, createExpressionWithTypeArguments, createFalse, createFunctionTypeNode, createHeritageClause, createIdentifier, createIndexedAccessTypeNode, createIntersectionTypeNode, createKeywordTypeNode, createLiteral, createLiteralTypeNode, createMappedTypeNode, createNodeArray, createNoSubstitutionTemplateLiteral, createNumericLiteral, createObjectBindingPattern, createOmittedExpression, createParameter, createParenthesizedType, createPrefix, createPropertySignature, createQualifiedName, createToken, createTrue, createTupleTypeNode, createTypeLiteralNode, createTypeOperatorNode, createTypeParameterDeclaration, createTypePredicateNode, createTypeReferenceNode, createUnionTypeNode, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, IndexedAccessTypeNode, IntersectionTypeNode, isArrayBindingPattern, isArrayTypeNode, isBindingElement, isFunctionTypeNode, isIdentifier, isIndexedAccessTypeNode, isIntersectionTypeNode, isLiteralExpression, isLiteralTypeNode, isMappedTypeNode, isNoSubstitutionTemplateLiteral, isNumericLiteral, isParenthesizedTypeNode, isPropertySignature, isQualifiedName, isRegularExpressionLiteral, isStringLiteral, isTupleTypeNode, isTypeLiteralNode, isTypeOperatorNode, isTypePredicateNode, isTypeReferenceNode, isUnionTypeNode, KeywordTypeNode, LiteralExpression, LiteralTypeNode, MappedTypeNode, Modifier, NodeArray, NoSubstitutionTemplateLiteral, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, ParenthesizedTypeNode, PropertyName, PropertySignature, QualifiedName, RegularExpressionLiteral, StringLiteral, SyntaxKind, Token, TupleTypeNode, TypeElement, TypeLiteralNode, TypeNode, TypeOperatorNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnionTypeNode} from "typescript";
+import {ArrayBindingElement, ArrayBindingPattern, ArrayTypeNode, BindingElement, BindingName, BooleanLiteral, ComputedPropertyName, createIndexSignature, isIndexSignatureDeclaration, createArrayBindingPattern, createArrayTypeNode, createBindingElement, createComputedPropertyName, createDecorator, createExpressionWithTypeArguments, createFalse, createFunctionTypeNode, createHeritageClause, createIdentifier, createIndexedAccessTypeNode, createIntersectionTypeNode, createKeywordTypeNode, createLiteral, createLiteralTypeNode, createMappedTypeNode, createNodeArray, createNoSubstitutionTemplateLiteral, createNumericLiteral, createObjectBindingPattern, createOmittedExpression, createParameter, createParenthesizedType, createPrefix, createPropertySignature, createQualifiedName, createToken, createTrue, createTupleTypeNode, createTypeLiteralNode, createTypeOperatorNode, createTypeParameterDeclaration, createTypePredicateNode, createTypeReferenceNode, createUnionTypeNode, Decorator, EntityName, Expression, ExpressionWithTypeArguments, FunctionTypeNode, HeritageClause, Identifier, IndexedAccessTypeNode, IntersectionTypeNode, isArrayBindingPattern, isArrayTypeNode, isBindingElement, isFunctionTypeNode, isIdentifier, isIndexedAccessTypeNode, isIntersectionTypeNode, isLiteralExpression, isLiteralTypeNode, isMappedTypeNode, isNoSubstitutionTemplateLiteral, isNumericLiteral, isParenthesizedTypeNode, isPropertySignature, isQualifiedName, isRegularExpressionLiteral, isStringLiteral, isTupleTypeNode, isTypeLiteralNode, isTypeOperatorNode, isTypePredicateNode, isTypeReferenceNode, isUnionTypeNode, KeywordTypeNode, LiteralExpression, LiteralTypeNode, MappedTypeNode, Modifier, NodeArray, NoSubstitutionTemplateLiteral, NumericLiteral, ObjectBindingPattern, OmittedExpression, ParameterDeclaration, ParenthesizedTypeNode, PropertyName, PropertySignature, QualifiedName, RegularExpressionLiteral, StringLiteral, SyntaxKind, Token, TupleTypeNode, TypeElement, TypeLiteralNode, TypeNode, TypeOperatorNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnionTypeNode, IndexSignatureDeclaration} from "typescript";
 import {isKeywordTypeNode} from "../predicate/keyword-type-node/is-keyword-type-node";
 import {ICopier} from "./i-copier";
 
@@ -487,6 +487,10 @@ export class Copier implements ICopier {
 			return <TypeElement> <any> this.copyNumericLiteral(type);
 		}
 
+		else if (isIndexSignatureDeclaration(type)) {
+			return this.copyIndexSignatureDeclaration(type);
+		}
+
 		throw new TypeError(`${this.constructor.name} could not copy a TypeElement of kind: ${SyntaxKind[type.kind]}`);
 	}
 
@@ -502,6 +506,20 @@ export class Copier implements ICopier {
 			type.questionToken == null ? undefined : this.copyToken(type.questionToken),
 			type.type == null ? undefined : this.copyType(type.type),
 			type.initializer == null ? undefined : this.copyExpression(type.initializer)
+		);
+	}
+
+	/**
+	 * Copies an IndexSignatureDeclaration
+	 * @param {IndexSignatureDeclaration} type
+	 * @returns {IndexSignatureDeclaration}
+	 */
+	public copyIndexSignatureDeclaration (type: IndexSignatureDeclaration): IndexSignatureDeclaration {
+		return createIndexSignature(
+			type.decorators == null ? undefined : this.copyDecorators(type.decorators),
+			type.modifiers == null ? undefined : this.copyModifiers(type.modifiers),
+			type.parameters.map(parameter => this.copyParameter(parameter)),
+			this.copyType(type.type!)
 		);
 	}
 
