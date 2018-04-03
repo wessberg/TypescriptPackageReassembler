@@ -1,3 +1,11 @@
+<a name="0.0.10"></a>
+## <small>0.0.10 (2018-04-03)</small>
+
+* 0.0.10 ([4abf232](https://github.com/wessberg/TypescriptPackageReassembler/commit/4abf232))
+* Bumped version ([3578f94](https://github.com/wessberg/TypescriptPackageReassembler/commit/3578f94))
+
+
+
 <a name="0.0.9"></a>
 ## <small>0.0.9 (2018-04-03)</small>
 
