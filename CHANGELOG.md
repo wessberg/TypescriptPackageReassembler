@@ -1,4 +1,11 @@
-<a name="0.0.10"></a>
+## <small>0.0.11 (2018-06-21)</small>
+
+* 0.0.11 ([082c623](https://github.com/wessberg/TypescriptPackageReassembler/commit/082c623))
+* Bumped deps ([77d5b27](https://github.com/wessberg/TypescriptPackageReassembler/commit/77d5b27))
+* Bumped version ([28551f8](https://github.com/wessberg/TypescriptPackageReassembler/commit/28551f8))
+
+
+
 ## <small>0.0.10 (2018-04-03)</small>
 
 * 0.0.10 ([4abf232](https://github.com/wessberg/TypescriptPackageReassembler/commit/4abf232))
@@ -6,7 +13,6 @@
 
 
 
-<a name="0.0.9"></a>
 ## <small>0.0.9 (2018-04-03)</small>
 
 * 0.0.9 ([a1e1dfe](https://github.com/wessberg/TypescriptPackageReassembler/commit/a1e1dfe))
@@ -15,7 +21,6 @@
 
 
 
-<a name="0.0.8"></a>
 ## <small>0.0.8 (2018-03-31)</small>
 
 * 0.0.8 ([99a65a7](https://github.com/wessberg/TypescriptPackageReassembler/commit/99a65a7))
@@ -24,7 +29,6 @@
 
 
 
-<a name="0.0.7"></a>
 ## <small>0.0.7 (2018-02-03)</small>
 
 * 0.0.7 ([1521704](https://github.com/wessberg/TypescriptPackageReassembler/commit/1521704))
@@ -33,7 +37,6 @@
 
 
 
-<a name="0.0.6"></a>
 ## <small>0.0.6 (2017-09-10)</small>
 
 * 0.0.6 ([79105f8](https://github.com/wessberg/TypescriptPackageReassembler/commit/79105f8))
@@ -42,7 +45,6 @@
 
 
 
-<a name="0.0.5"></a>
 ## <small>0.0.5 (2017-09-02)</small>
 
 * 0.0.5 ([71dab5e](https://github.com/wessberg/TypescriptPackageReassembler/commit/71dab5e))
@@ -51,7 +53,6 @@
 
 
 
-<a name="0.0.4"></a>
 ## <small>0.0.4 (2017-09-02)</small>
 
 * 0.0.4 ([21c4084](https://github.com/wessberg/TypescriptPackageReassembler/commit/21c4084))
@@ -60,7 +61,6 @@
 
 
 
-<a name="0.0.3"></a>
 ## <small>0.0.3 (2017-09-02)</small>
 
 * 0.0.3 ([8f8fb58](https://github.com/wessberg/TypescriptPackageReassembler/commit/8f8fb58))
@@ -68,7 +68,6 @@
 
 
 
-<a name="0.0.2"></a>
 ## <small>0.0.2 (2017-09-02)</small>
 
 * 0.0.2 ([8a52ac1](https://github.com/wessberg/TypescriptPackageReassembler/commit/8a52ac1))
@@ -77,7 +76,6 @@
 
 
 
-<a name="0.0.1"></a>
 ## <small>0.0.1 (2017-08-29)</small>
 
 * 0.0.1 ([bf3c430](https://github.com/wessberg/TypescriptPackageReassembler/commit/bf3c430))
