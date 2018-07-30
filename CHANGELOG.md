@@ -1,3 +1,11 @@
+## <small>0.0.12 (2018-07-30)</small>
+
+* 0.0.12 ([8119c69](https://github.com/wessberg/TypescriptPackageReassembler/commit/8119c69))
+* Bumped to Typescript v3.01 support ([0ee8c41](https://github.com/wessberg/TypescriptPackageReassembler/commit/0ee8c41))
+* Bumped version ([71595e5](https://github.com/wessberg/TypescriptPackageReassembler/commit/71595e5))
+
+
+
 ## <small>0.0.11 (2018-06-21)</small>
 
 * 0.0.11 ([082c623](https://github.com/wessberg/TypescriptPackageReassembler/commit/082c623))
