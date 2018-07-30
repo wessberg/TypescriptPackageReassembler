@@ -41,13 +41,13 @@
 		"ava": "^0.25.0",
 		"conventional-changelog-cli": "^2.0.1",
 		"husky": "latest",
-		"tslint": "^5.10.0",
-		"typescript": "^2.9.2"
+		"tslint": "^5.11.0",
+		"typescript": "^3.0.1"
 	},
 	"dependencies": {
-		"@types/node": "^10.3.4",
-		"@wessberg/typescript-ast-util": "0.0.46",
-		"tslib": "^1.9.2"
+		"@types/node": "^10.5.4",
+		"@wessberg/typescript-ast-util": "0.0.47",
+		"tslib": "^1.9.3"
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/es2015/index.js",
