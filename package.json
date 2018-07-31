@@ -46,7 +46,7 @@
 	},
 	"dependencies": {
 		"@types/node": "^10.5.4",
-		"@wessberg/typescript-ast-util": "0.0.47",
+		"@wessberg/typescript-ast-util": "0.0.48",
 		"tslib": "^1.9.3"
 	},
 	"main": "./dist/cjs/index.js",
