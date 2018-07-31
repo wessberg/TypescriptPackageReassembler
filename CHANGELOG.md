@@ -1,3 +1,11 @@
+## <small>0.0.13 (2018-07-31)</small>
+
+* 0.0.13 ([0240cae](https://github.com/wessberg/TypescriptPackageReassembler/commit/0240cae))
+* Bumped deps ([e666619](https://github.com/wessberg/TypescriptPackageReassembler/commit/e666619))
+* Bumped version ([4b59c82](https://github.com/wessberg/TypescriptPackageReassembler/commit/4b59c82))
+
+
+
 ## <small>0.0.12 (2018-07-30)</small>
 
 * 0.0.12 ([8119c69](https://github.com/wessberg/TypescriptPackageReassembler/commit/8119c69))
